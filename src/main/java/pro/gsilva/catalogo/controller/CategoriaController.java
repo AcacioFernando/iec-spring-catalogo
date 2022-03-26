@@ -2,6 +2,7 @@ package pro.gsilva.catalogo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -16,6 +17,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import javax.validation.Valid;
+
+import org.springframework.web.bind.annotation.*;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+
 
 @Controller
 public class CategoriaController {
@@ -42,6 +53,54 @@ public class CategoriaController {
             mv.addObject("pageNumbers", pageNumbers);
         }
 
+        return mv;
+    }
+
+    @RequestMapping(value="/addCategoria", method=RequestMethod.GET)
+    public String getCategoriaForm(Categoria categoria) {
+        return "categoriaForm";
+    }
+    
+    @RequestMapping(value="/addCategoria", method=RequestMethod.POST)
+    public ModelAndView salvarCategoria(@Valid @ModelAttribute("categoria") Categoria categoria, 
+           BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            ModelAndView categoriaForm = new ModelAndView("categoriaForm");
+            categoriaForm.addObject("mensagem", "Verifique os errors do formulário");
+            return categoriaForm;
+        }
+        categoriaService.save(categoria);
+        return new ModelAndView("redirect:/categorias");
+    }
+
+        
+    @RequestMapping(value="/delCategoria/{id}", method=RequestMethod.GET)
+    public String delCategoria(@PathVariable("id") long id) {
+        categoriaService.excluir(id);
+        return "redirect:/categorias";
+    }
+
+    @RequestMapping(value="/categoria/{id}", method=RequestMethod.GET)
+    public ModelAndView getCategoriaDetalhes(@PathVariable("id") long id) {
+        ModelAndView mv = new ModelAndView("categoriaDetalhes");
+        Categoria categoria = categoriaService.findById(id);
+        mv.addObject("categoria", categoria);
+        return mv;
+    }
+
+    @RequestMapping(value = "/categorias/edit/{id}", method = RequestMethod.GET)
+    public ModelAndView getFormEditC(@PathVariable("id") long id) {
+        ModelAndView mv = new ModelAndView("categoriaForm");
+        Categoria categoria = categoriaService.findById(id);
+        mv.addObject("categoria", categoria);
+        return mv;
+    }
+
+    @GetMapping("/categorias/pesquisar")
+    public ModelAndView pesquisar(@RequestParam("nome") String nome) {
+        ModelAndView mv = new ModelAndView("categorias");
+        List<Categoria> categorias = categoriaService.findByNome(nome);
+        mv.addObject("categorias", categorias);
         return mv;
     }
 }

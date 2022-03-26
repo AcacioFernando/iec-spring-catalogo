@@ -1,6 +1,9 @@
 package pro.gsilva.catalogo.controller;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -10,6 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @Slf4j
 public class ControllerAdviceConfig {
 
+    final static Logger log = LogManager.getLogger(ControllerAdviceConfig.class);
     @ExceptionHandler(Exception.class)
     public String handle500Error(Exception ex) {
         log.error(ex.getMessage(), ex);
